@@ -62,5 +62,5 @@ echo "  - plugin.json updated"
 echo "  - Committed and tagged v${NEW_VERSION}"
 echo ""
 echo "Refreshing plugin cache..."
-claude plugin update claude-council@hex-plugins-dev
+claude plugin update skogai-council@hex-plugins-dev
 echo "Done. Plugin cache is now at v${NEW_VERSION}."

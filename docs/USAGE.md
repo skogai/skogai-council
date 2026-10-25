@@ -6,29 +6,29 @@ Every workflow the council supports, with examples. The [README](../README.md) h
 
 ```bash
 # Query all configured providers
-/claude-council:ask "How should I structure authentication in this Express app?"
+/skogai-council:ask "How should I structure authentication in this Express app?"
 
 # Query specific providers
-/claude-council:ask --providers=gemini,openai "What's the best approach for caching here?"
+/skogai-council:ask --providers=gemini,openai "What's the best approach for caching here?"
 
 # Include a specific file for review
-/claude-council:ask --file=src/auth.ts "What's wrong with this implementation?"
+/skogai-council:ask --file=src/auth.ts "What's wrong with this implementation?"
 
 # Attach a screenshot for visual critique
-/claude-council:ask --image=shot.png "Why does this dialog render off-center?"
+/skogai-council:ask --image=shot.png "Why does this dialog render off-center?"
 
 # Export response to markdown file
-/claude-council:ask --output=docs/auth-decision.md "How should we implement authentication?"
+/skogai-council:ask --output=docs/auth-decision.md "How should we implement authentication?"
 
 # Quiet mode - show only synthesis
-/claude-council:ask --quiet "What's the best caching strategy?"
+/skogai-council:ask --quiet "What's the best caching strategy?"
 
 # Check connectivity and configured models for each provider
-/claude-council:status
+/skogai-council:status
 
 # Run a long query in the background, fetch it later
-/claude-council:ask --async "Deep-dive the tradeoffs of event sourcing here"
-/claude-council:result <job-id>
+/skogai-council:ask --async "Deep-dive the tradeoffs of event sourcing here"
+/skogai-council:result <job-id>
 ```
 
 ## Specialized Roles
@@ -37,13 +37,13 @@ Assign different perspectives to each provider for more comprehensive reviews:
 
 ```bash
 # Use specific roles
-/claude-council:ask --roles=security,performance,maintainability "Review this auth code"
+/skogai-council:ask --roles=security,performance,maintainability "Review this auth code"
 
 # Use a preset
-/claude-council:ask --roles=balanced "Review this implementation"
+/skogai-council:ask --roles=balanced "Review this implementation"
 
 # Bind a role to a named provider instead of a position
-/claude-council:ask --roles=openrouter-2=security,perplexity=devil "Review this design"
+/skogai-council:ask --roles=openrouter-2=security,perplexity=devil "Review this design"
 ```
 
 **Available roles:**
@@ -87,7 +87,7 @@ Note: no role for openai grok
 Enable multi-round discussions where providers critique each other:
 
 ```bash
-/claude-council:ask --debate "How should I structure the database schema?"
+/skogai-council:ask --debate "How should I structure the database schema?"
 ```
 
 **How it works:**
@@ -102,7 +102,7 @@ Debate mode surfaces blind spots and stress-tests recommendations. The synthesis
 
 Combine with roles for focused debates:
 ```bash
-/claude-council:ask --debate --roles=security,performance,simplicity "Review this architecture"
+/skogai-council:ask --debate --roles=security,performance,simplicity "Review this architecture"
 ```
 
 ## Agent-Enhanced Analysis (--agents)
@@ -115,10 +115,10 @@ finished analysts served from cache. Needs a Claude Code with the Workflow tool.
 
 ```bash
 # Explicit flag
-/claude-council:ask --agents "Should we migrate from REST to GraphQL? What are the tradeoffs?"
+/skogai-council:ask --agents "Should we migrate from REST to GraphQL? What are the tradeoffs?"
 
 # Combine with other flags
-/claude-council:ask --agents --roles=security,scalability --providers=gemini,openai "Review this auth architecture"
+/skogai-council:ask --agents --roles=security,scalability --providers=gemini,openai "Review this auth architecture"
 ```
 
 **What each analyst does (beyond a simple API call):**
@@ -156,10 +156,10 @@ If you have no provider keys and no `codex` / `agy` / `grok` / `kimi` / `cursor-
 
 ```bash
 # Explicit
-/claude-council:ask --local "Is event sourcing worth it for this order service?"
+/skogai-council:ask --local "Is event sourcing worth it for this order service?"
 
 # Pick the exact lenses yourself (skips the size prompt)
-/claude-council:ask --local --roles=architecture "How should we shard this database?"
+/skogai-council:ask --local --roles=architecture "How should we shard this database?"
 ```
 
 It spawns several Claude subagents in parallel, each pinned to a different role
@@ -174,7 +174,7 @@ of erroring.
 > Agreement between them is a *shared starting point to pressure-test*, not
 > cross-vendor corroboration. The value is independent angles and blind-spot
 > coverage — for genuinely independent models, configure a provider key or a CLI
-> (`/claude-council:status` shows what's available). The synthesis is framed
+> (`/skogai-council:status` shows what's available). The synthesis is framed
 > around angles and tensions, not "consensus", to keep this distinction clear.
 
 ## Quiet Mode
@@ -182,7 +182,7 @@ of erroring.
 Get just the bottom line without individual provider responses:
 
 ```bash
-/claude-council:ask --quiet "Should I use Redis or Memcached?"
+/skogai-council:ask --quiet "Should I use Redis or Memcached?"
 ```
 
 Quiet mode still queries all providers and analyzes their responses, but only shows the synthesis with consensus/divergence analysis. Use when you want a quick answer without scrolling through multiple perspectives.
@@ -212,7 +212,7 @@ filesystem beats five that cannot.
 The council automatically detects and includes relevant files based on your question:
 
 ```bash
-/claude-council:ask "How should I refactor the authentication flow?"
+/skogai-council:ask "How should I refactor the authentication flow?"
 # Auto-detects and includes: src/auth/*.ts, middleware/auth.ts, etc.
 ```
 
@@ -226,7 +226,7 @@ Auto-included context (3 files):
 
 To disable auto-context (for general questions not about your code):
 ```bash
-/claude-council:ask --no-auto-context "What are best practices for API design?"
+/skogai-council:ask --no-auto-context "What are best practices for API design?"
 ```
 
 Auto-context limits:
@@ -239,7 +239,7 @@ Auto-context limits:
 Attach one image (e.g. a UI screenshot) so vision-capable providers can critique it:
 
 ```bash
-/claude-council:ask --image=shot.png "Why does this dialog render off-center?"
+/skogai-council:ask --image=shot.png "Why does this dialog render off-center?"
 ```
 
 - Single image per query, raw size up to 10 MB, extensions: png / jpg / jpeg / webp / gif.
@@ -253,7 +253,7 @@ Privacy: the image is sent to the providers that can see it, but its bytes are *
 Save council responses as clean markdown files for documentation or sharing:
 
 ```bash
-/claude-council:ask --output=docs/decision.md "Should we use REST or GraphQL?"
+/skogai-council:ask --output=docs/decision.md "Should we use REST or GraphQL?"
 ```
 
 The exported file includes:
@@ -267,12 +267,12 @@ Reasoning and deep-research models can take minutes. `--async` detaches the
 query as a tracked background job instead of blocking the conversation:
 
 ```bash
-/claude-council:ask --async "Compare migration strategies for this schema"
+/skogai-council:ask --async "Compare migration strategies for this schema"
 # → job id, returned immediately
 
-/claude-council:result              # list jobs
-/claude-council:result <job-id>     # fetch a finished result (synthesis included)
-/claude-council:result cancel <id>  # terminate a running job
+/skogai-council:result              # list jobs
+/skogai-council:result <job-id>     # fetch a finished result (synthesis included)
+/skogai-council:result cancel <id>  # terminate a running job
 ```
 
 Each job persists as a JSON record plus log under a per-workspace state
@@ -282,17 +282,17 @@ marked `failed` automatically; finished jobs are pruned beyond
 
 ## Asking about the conversation itself
 
-`/claude-council:ask` sends a question you typed. `/claude-council:advise` sends
+`/skogai-council:ask` sends a question you typed. `/skogai-council:advise` sends
 a bounded slice of the current conversation, so providers see the reasoning
 rather than your summary of it. A model given only your framing tends to agree
 with your framing.
 
 ```bash
 # Ask the council about the approach taken so far
-/claude-council:advise "are we solving the right problem here?"
+/skogai-council:advise "are we solving the right problem here?"
 
 # Narrow the window
-/claude-council:advise --turns=last:10 "what did we miss?"
+/skogai-council:advise --turns=last:10 "what did we miss?"
 ```
 
 Every run resolves this session's transcript, digests it, and shows the byte
@@ -432,7 +432,7 @@ adds a dim tip to the hint under the empty prompt, `Tip: /heads-up on lets
 another model watch long turns and flag what Claude missed`, until you type; a
 flag in the plugin store keeps it from coming back.
 
-Privacy: unlike `/claude-council:advise`, nothing asks before a send. Each
+Privacy: unlike `/skogai-council:advise`, nothing asks before a send. Each
 check digests the last five turns of this session's transcript plus the last
 eight tool results inside them, cut to 2,000 characters each, and sends that
 to the one seat. A Write or an Edit sends the text it wrote and the file path

@@ -33,4 +33,4 @@ bash ${CLAUDE_PLUGIN_ROOT}/scripts/run-council.sh --jobs
 ```
 
 If the output is non-empty, present it as a table (job id, status, created)
-and mention `/claude-council:result <job-id>`. If empty, omit the section.
+and mention `/skogai-council:result <job-id>`. If empty, omit the section.

@@ -19,7 +19,7 @@ bash ${CLAUDE_PLUGIN_ROOT}/scripts/run-council.sh --jobs
 ```
 
 Present the output as a table (job id, status, created). If empty, tell the
-user there are no background council jobs and that `/claude-council:ask`
+user there are no background council jobs and that `/skogai-council:ask`
 with `--async` starts one.
 
 ## Cancel a Job
@@ -43,6 +43,6 @@ bash ${CLAUDE_PLUGIN_ROOT}/scripts/run-council.sh --result=<job-id>
   council-execution skill describes for it. Then complete the synthesis under the
   `## 🧭 Synthesis` header following `${CLAUDE_PLUGIN_ROOT}/prompts/synthesis.md`.
 - **Exit 2**: the job is still running. Tell the user and suggest re-running
-  `/claude-council:result <job-id>` in a little while.
+  `/skogai-council:result <job-id>` in a little while.
 - **Exit 1**: unknown, failed, or cancelled job. Show the script's stderr,
   which includes the tail of the job log for failures.

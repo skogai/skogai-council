@@ -1,5 +1,5 @@
 #!/bin/bash
-# ABOUTME: Test runner script for claude-council
+# ABOUTME: Test runner script for skogai-council
 # ABOUTME: Runs all bats tests with optional filtering
 
 set -euo pipefail

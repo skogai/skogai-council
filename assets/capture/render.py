@@ -226,7 +226,7 @@ def render(manifest, output):
 
 
 def banner(output):
-    title = "claude-council"
+    title = "skogai-council"
     description = "several AI coding agents, one question, answers side by side inside Claude Code"
     root = ET.Element(f"{{{NS}}}svg", {
         "viewBox": "0 0 1536 614", "width": "1536", "height": "614",

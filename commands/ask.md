@@ -80,7 +80,7 @@ any provider questions:
      - "Run local council" → local mode (Step 2).
      - "How to add a provider" → show the setup hint (set an API key, or install
        the `codex` / `agy` (Antigravity) / `grok` / `kimi` CLI, or run `ollama`;
-       `/claude-council:status`
+       `/skogai-council:status`
        shows what's available) and stop.
      - "Cancel" → stop.
 
@@ -306,7 +306,7 @@ bash ${CLAUDE_PLUGIN_ROOT}/scripts/run-council.sh --async --providers=<list> -- 
 ```
 
 The first stdout line is the job id. Tell the user the job started and that
-`/claude-council:result <job-id>` fetches it when ready. Skip Steps 3-4; the
+`/skogai-council:result <job-id>` fetches it when ready. Skip Steps 3-4; the
 synthesis happens when the result is fetched.
 
 ### If Standard Mode (default)

@@ -1,5 +1,5 @@
 {
-  "name": "claude-council",
+  "name": "skogai-council",
   "version": "2026.10.11",
   "description": "Consult multiple AI coding agents (Gemini, OpenAI, Grok, Perplexity, Kimi, any model OpenRouter routes to, plus codex, antigravity, grok, kimi and cursor CLIs when installed, and a local ollama model) to get diverse perspectives on coding problems, with a streaming pane in tmux or inside Claude Code, and, once switched on, a heads-up side-check where one council seat, codex by default, rereads a long turn and shows one line above the prompt about something you may have missed.",
   "author": {
@@ -55,7 +55,7 @@
     "council_tool": {
       "type": "boolean",
       "title": "Council as a tool",
-      "description": "Let Claude call the council as a tool, not only through /claude-council:ask. Every call shows you the question and the providers and asks before anything is sent. Experimental: needs CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1.",
+      "description": "Let Claude call the council as a tool, not only through /skogai-council:ask. Every call shows you the question and the providers and asks before anything is sent. Experimental: needs CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1.",
       "default": true
     },
     "heads_up": {

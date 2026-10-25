@@ -31,13 +31,13 @@ test('a seat the reader cancelled is counted as finished, apart from the errors'
 })
 
 test('wakePrompt asks for the result of a background job only', () => {
-  expect(wakePrompt('job-abc')).toBe('The background council job job-abc has finished. Fetch it with /claude-council:result job-abc and summarise it.')
+  expect(wakePrompt('job-abc')).toBe('The background council job job-abc has finished. Fetch it with /skogai-council:result job-abc and summarise it.')
   expect(wakePrompt('')).toBeUndefined()
 })
 
 test('reopenReply says whether there is a run to show', () => {
   expect(reopenReply(true)).toBe('Council pane reopened with the last run.')
-  expect(reopenReply(false)).toBe('No council run in this session yet. Start one with /claude-council:ask.')
+  expect(reopenReply(false)).toBe('No council run in this session yet. Start one with /skogai-council:ask.')
 })
 
 test('noticeIsLive keeps a finish notice up for its window only', () => {

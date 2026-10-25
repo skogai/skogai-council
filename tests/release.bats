@@ -12,7 +12,7 @@ make_release_repo() {
     local repo="${BATS_TEST_TMPDIR}/repo"
     mkdir -p "$repo/scripts" "$repo/.claude-plugin" "$repo/fakebin"
     cp "${SCRIPTS_DIR}/release.sh" "$repo/scripts/release.sh"
-    printf '{"name":"claude-council","version":"2000.1.1"}\n' \
+    printf '{"name":"skogai-council","version":"2000.1.1"}\n' \
         > "$repo/.claude-plugin/plugin.json"
     cat > "$repo/fakebin/claude" <<'EOF'
 #!/bin/bash

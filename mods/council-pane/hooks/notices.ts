@@ -58,13 +58,13 @@ export function runPid(text: string): string | undefined {
 
 export function wakePrompt(jobId: string): string | undefined {
   if (!jobId) return undefined
-  return `The background council job ${jobId} has finished. Fetch it with /claude-council:result ${jobId} and summarise it.`
+  return `The background council job ${jobId} has finished. Fetch it with /skogai-council:result ${jobId} and summarise it.`
 }
 
 export function reopenReply(hasRun: boolean): string {
   return hasRun
     ? 'Council pane reopened with the last run.'
-    : 'No council run in this session yet. Start one with /claude-council:ask.'
+    : 'No council run in this session yet. Start one with /skogai-council:ask.'
 }
 
 export type FinishNotice = { text: string; untilMs: number; isFailure?: boolean }

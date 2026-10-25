@@ -39,6 +39,6 @@ export type Note = {
 
 declare module 'claude-code' {
   interface PluginState {
-    'claude-council': { headsUp: Session }
+    'skogai-council': { headsUp: Session }
   }
 }

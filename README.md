@@ -1,4 +1,4 @@
-![claude-council](assets/banner.svg)
+![skogai-council](assets/banner.svg)
 
 A Claude Code plugin that asks AI coding agents the same question in
 parallel. Compare their answers when one model's bias could mislead you:
@@ -15,7 +15,7 @@ You need `curl` and `jq` on macOS, Linux, or Windows through Git Bash.
 
 ```text
 /plugin marketplace add hex/claude-marketplace
-/plugin install claude-council
+/plugin install skogai-council
 ```
 
 Give it at least one provider in the shell you start Claude Code from:
@@ -38,8 +38,8 @@ Read [what gets sent and saved](docs/REFERENCE.md#what-gets-sent-and-saved)
 before asking about your code.
 
 ```text
-/claude-council:status
-/claude-council:ask "Should I use UUID or BIGINT primary keys for a SaaS users table?"
+/skogai-council:status
+/skogai-council:ask "Should I use UUID or BIGINT primary keys for a SaaS users table?"
 ```
 
 Each provider answers independently. Claude writes a synthesis of their
@@ -116,7 +116,7 @@ reproduce them.
 | Problem | Fix |
 |---|---|
 | Cloned the repo and nothing loads | Don't clone into `~/.claude/plugins/`. `pluginDirectories` is not a setting. Follow [running from a local clone](docs/REFERENCE.md#running-from-a-local-clone). |
-| No providers found | Run `/claude-council:status`. Export keys in the shell that starts Claude Code, or use `--local`. |
+| No providers found | Run `/skogai-council:status`. Export keys in the shell that starts Claude Code, or use `--local`. |
 | A different model answered | A header such as `grok-4.7 (grok-latest unavailable)` records a [model fallback](docs/REFERENCE.md#model-fallback). Setting that provider's `_MODEL` variable disables fallback. |
 | No pane | Use tmux or set `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1` for the pane inside Claude Code. |
-| Updating | Run `/plugin update claude-council`, then restart Claude Code. |
+| Updating | Run `/plugin update skogai-council`, then restart Claude Code. |

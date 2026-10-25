@@ -13,13 +13,13 @@ arguments unless the row names a correction.
 | 05 | Inline pane needs `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1`; tmux fallback; chat outside both | Keep in README, The pane | `hooks/hooks.json`, `scripts/lib/display.sh`, `skills/council-execution/SKILL.md` |
 | 06 | Quick-start, privacy, commands, providers, usage, and reference navigation | Replace old local section links with Install, First run, feature rows, and guide links | `check-links.py` checks new destinations |
 | 07 | `curl`, `jq`; macOS, Linux, Windows through Git Bash | Keep in README, Install | `scripts/query-council.sh` dependency checks; `.github/workflows/tests.yml` |
-| 08 | `/plugin marketplace add hex/claude-marketplace`; `/plugin install claude-council` | Keep verbatim in README, Install | Local `claude plugin marketplace add --help`, `claude plugin install --help`; plugin manifest name |
+| 08 | `/plugin marketplace add hex/claude-marketplace`; `/plugin install skogai-council` | Keep verbatim in README, Install | Local `claude plugin marketplace add --help`, `claude plugin install --help`; plugin manifest name |
 | 09 | Export a key in the shell that starts Claude Code | Keep in README, Install and Troubleshooting | `scripts/lib/providers.sh`, `scripts/lib/keys.sh` |
 | 10 | `OPENAI_API_KEY`, `GEMINI_API_KEY`, `XAI_API_KEY`, `PERPLEXITY_API_KEY`, `KIMI_API_KEY`, `OPENROUTER_API_KEY` | Keep all six in README, Install | Provider scripts and `api_key_present` |
 | 11 | `codex`, `agy` (Antigravity), `grok`, `kimi`, `cursor-agent` use subscription login without API keys | Keep in README, Install | `scripts/providers/{codex,antigravity,grok-cli,kimi-cli,cursor-cli}.sh` |
 | 12 | Local Ollama needs no key or external network | Keep in README, Install; qualify as a local model | `scripts/providers/ollama.sh`, default localhost host |
 | 13 | `--local` uses Claude subagents without these providers; local-council guide link | Keep in README, Install and feature row | `commands/ask.md`, `skills/local-council-execution/SKILL.md` |
-| 14 | `/claude-council:status`, then UUID versus BIGINT SaaS users-table question | Keep verbatim in README, First run | `commands/status.md`, `commands/ask.md` |
+| 14 | `/skogai-council:status`, then UUID versus BIGINT SaaS users-table question | Keep verbatim in README, First run | `commands/status.md`, `commands/ask.md` |
 | 15 | Independent answers, then Claude synthesis of agreement, split, recommendation | Keep in README, First run; expand in Reference, Reading the synthesis | `skills/council-execution/SKILL.md`, `prompts/synthesis.md` |
 | 16 | Agreement is not verification; shared description; name the untested premise | Keep warning in README; move detail to Reference, Reading the synthesis | `prompts/synthesis.md` |
 | 17 | Five providers recommend SQLite; single-node premise could flip the recommendation | Move illustrative example to Reference, Reading the synthesis; replace em dash with a period | Synthesis prompt requires this form of calibration; example stays explicitly illustrative |
@@ -63,7 +63,7 @@ arguments unless the row names a correction.
 | 55 | No providers: `/status`, export keys in host shell, or `--local` | Keep Troubleshooting row | `commands/status.md`, provider discovery, local execution skill |
 | 56 | `grok-4.7 (grok-latest unavailable)` is model fallback; provider `_MODEL` disables it | Keep exact header example and guide link in Troubleshooting | `scripts/lib/model_fallback.sh`; `scripts/format-output.sh` |
 | 57 | No pane: needs tmux or function-hooks variable | Keep Troubleshooting row | Display selection and mod hook registration |
-| 58 | `/plugin update claude-council`, restart Claude Code | Keep Troubleshooting row | Local `claude plugin update --help` says restart required |
+| 58 | `/plugin update skogai-council`, restart Claude Code | Keep Troubleshooting row | Local `claude plugin update --help` says restart required |
 
 No product capability was removed. The twelve-seat still image was replaced
 at the brief's request. The Ollama discovery condition was corrected against

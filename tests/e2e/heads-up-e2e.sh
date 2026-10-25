@@ -27,7 +27,7 @@ write_fake_cli codex
 # must leave all three as it found them. The intro flag is dropped for the run
 # so the once-per-install line shows.
 KEYS='["heads-up", "heads-up-counts", "heads-up-intro-shown"]'
-for store in "$HOME"/.claude/plugins/store/claude-council_inline-*.json; do
+for store in "$HOME"/.claude/plugins/store/skogai-council_inline-*.json; do
     [ -f "$store" ] || continue
     jq --argjson keys "$KEYS" 'with_entries(select(.key as $k | $keys | index($k)))' "$store" > "$OUT/before.$(basename "$store")"
     jq 'del(.["heads-up-intro-shown"], .["heads-up-counts"])' "$store" > "$OUT/cleared.json"
@@ -91,8 +91,8 @@ on_screen() { screen | grep -qF -- "$1"; }
 # A check takes the fake a moment, the engine draws on its own clock, and the
 # model turn before the check is a real Haiku turn: a minute covers all three.
 wait_for() { wait_until 90 "never saw '$1'" on_screen "$1"; }
-memory() { jq -c '.["heads-up"] // {}' "$HOME"/.claude/plugins/store/claude-council_inline-*.json | head -1; }
-counts() { jq -c '.["heads-up-counts"] // {}' "$HOME"/.claude/plugins/store/claude-council_inline-*.json | head -1; }
+memory() { jq -c '.["heads-up"] // {}' "$HOME"/.claude/plugins/store/skogai-council_inline-*.json | head -1; }
+counts() { jq -c '.["heads-up-counts"] // {}' "$HOME"/.claude/plugins/store/skogai-council_inline-*.json | head -1; }
 
 git -C "$PROJECT" init -q -b main
 printf '{"enabled": false, "seat": "codex", "every": 2}\n' > "$PROJECT/.claude/council-heads-up.json"

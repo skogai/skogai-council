@@ -22,7 +22,7 @@ Read this before the first question about your code.
   unrelated shell secrets do not reach it. The
   [environment allowlist](#provider-environment) also covers process and
   transport variables.
-- `/claude-council:advise` sends part of the conversation. It previews the
+- `/skogai-council:advise` sends part of the conversation. It previews the
   size, turn count, and opening lines, and asks before sending.
 - The heads-up side-check sends context mid-turn without asking once you
   enable it. The "Heads-up side-check" row in `/config` or the project's
@@ -55,18 +55,18 @@ one premise that would flip it, and the one nobody here could check.
 ## Command examples
 
 ```text
-/claude-council:ask "How should I structure authentication in this Express app?"
-/claude-council:ask --providers=gemini,codex "What's the best approach for caching here?"
-/claude-council:ask --file=src/auth.ts "What's wrong with this implementation?"
-/claude-council:ask --image=shot.png "Why does this dialog render off-center?"
-/claude-council:ask --roles=balanced "Review this implementation"
-/claude-council:ask --debate "How should I structure the database schema?"
-/claude-council:ask --quiet "Should I use Redis or Memcached?"
-/claude-council:ask --output=docs/decision.md "Should we use REST or GraphQL?"
-/claude-council:ask --async "Compare migration strategies for this schema"
-/claude-council:result <job-id>
-/claude-council:advise "are we solving the right problem here?"
-/claude-council:status
+/skogai-council:ask "How should I structure authentication in this Express app?"
+/skogai-council:ask --providers=gemini,codex "What's the best approach for caching here?"
+/skogai-council:ask --file=src/auth.ts "What's wrong with this implementation?"
+/skogai-council:ask --image=shot.png "Why does this dialog render off-center?"
+/skogai-council:ask --roles=balanced "Review this implementation"
+/skogai-council:ask --debate "How should I structure the database schema?"
+/skogai-council:ask --quiet "Should I use Redis or Memcached?"
+/skogai-council:ask --output=docs/decision.md "Should we use REST or GraphQL?"
+/skogai-council:ask --async "Compare migration strategies for this schema"
+/skogai-council:result <job-id>
+/skogai-council:advise "are we solving the right problem here?"
+/skogai-council:status
 ```
 
 Naming a provider in plain words works too: "check with grok" runs the council
@@ -77,7 +77,7 @@ with that provider alone. [Flags](#flags) lists every flag.
 
 Discovery includes providers with a configured key or a command-line tool on `PATH`,
 including `ollama`. A local Ollama server must run to answer.
-`/claude-council:status` shows what it found.
+`/skogai-council:status` shows what it found.
 
 Command-line seats take precedence over their API siblings: `codex` replaces `openai`,
 `antigravity` replaces `gemini`, `grok-cli` replaces `grok`, and `kimi-cli`
@@ -144,7 +144,7 @@ claude --plugin-dir /path/to/claude-council    # repo root; loaded for this sess
 | `--quiet` | Show only synthesis, hide individual responses |
 | `--agents` | Agent-enhanced analysis, one Claude analyst per provider (slower, deeper) |
 | `--local` | Local Claude-only council when you have no provider keys (see [USAGE.md](USAGE.md#local-council---local)) |
-| `--async` | Detach the query as a background job; fetch with `/claude-council:result` |
+| `--async` | Detach the query as a background job; fetch with `/skogai-council:result` |
 | `--no-cache` | Force fresh queries, skip cache |
 | `--no-auto-context` | Disable automatic file detection |
 | `--no-pane` | Disable streaming tmux pane (default: on inside tmux) |
@@ -214,14 +214,14 @@ If the `codex`, `agy`, `grok`, `kimi`, or `cursor-agent` CLIs are installed and 
 - Two things reach it that no flag removes. MCP servers in your `~/.copilot/mcp-config.json` still start, though the model gets none of their tools. The CLI also saves each run in your Copilot session history.
 - It authenticates with `COPILOT_GITHUB_TOKEN` when set, else your stored login from `copilot login` or the GitHub CLI's `gh auth login`. Copilot reads the second by running `gh`, so `gh` must stay on `PATH`. The council passes `COPILOT_GITHUB_TOKEN`, `COPILOT_HOME`, `COPILOT_CLI_*`, and `GH_CONFIG_DIR`, `GH_HOST` and `COPILOT_GH_HOST` for a relocated or GitHub Enterprise `gh` login, and nothing else of yours: `GH_TOKEN` and `GITHUB_TOKEN` stay behind, so a token your shell exports for `gh` or `git` does not choose the account, and so does `COPILOT_ALLOW_ALL`, which would make the CLI load the working directory's hooks.
 - With `COPILOT_CLI_MODEL` unset, the CLI picks the model per question, and two questions can get different models. The header shows `default`, not the model that answered. A named model can fail. On one plan, `--model` rejected every name tried, including a model the automatic pick had just used, and the seat reports the CLI's `is not available` error. A model saved with `copilot config model` did not change the pick in a seat run, so the council does not read it.
-- `/claude-council:status` shows whether `copilot` is on `PATH`, not whether it has a login. The CLI has no status command, and a test prompt would spend a premium request. A seat without a login fails with the CLI's `No authentication information found` and the ways to log in.
+- `/skogai-council:status` shows whether `copilot` is on `PATH`, not whether it has a login. The CLI has no status command, and a test prompt would spend a premium request. A seat without a login fails with the CLI's `No authentication information found` and the ways to log in.
 - The automatic pick can be a Claude model, so the synthesis counts this seat's agreement the way it counts a router seat's.
 
 CLI providers use your existing CLI subscription and need no API key. None of them meters a call except `copilot-cli`, where each question spends one of the plan's premium requests. To opt back into the API variant for a single call, pass it explicitly: `--providers=openai`, `--providers=gemini`, `--providers=grok`, or `--providers=kimi`. Listing both API and CLI together (e.g., `--providers=grok,grok-cli`) runs them side-by-side for comparison.
 
 If a CLI provider fails at query time and its API sibling's key is set, the council automatically retries through that API sibling and marks the slot as a fallback: the answer is shown under the CLI slot with the API model's name, a "fell back to … API" note, and the CLI's own error as the reason; the pane row reads `fallback` with `<model> via <sibling> API`. The fallback is skipped when the sibling is already in your selected providers, so you never get the same vendor's answer twice.
 
-**Grok CLI guards, and Docker Desktop.** `grok-cli.sh` runs grok with two guards: `--deny '*' --no-subagents`, which refuses every tool call at grok's permission layer (without it grok's file and shell tools run on your machine; `--tools ''` and `--permission-mode plan` do not stop them), and `--sandbox read-only`, grok's own OS profile on top. grok 1.0.46 refuses to start any sandbox profile when `/var/run/docker.sock` is a symlink, which Docker Desktop on macOS creates when "Allow the default Docker socket to be used" is on. When grok refuses to start because it cannot apply the sandbox (`could not apply the 'read-only' sandbox profile … Refusing to start`, as it does on that symlink), the provider runs once more on the deny rules alone, so the seat keeps answering; any other failure falls back to the `grok` API as usual. `/claude-council:status` probes grok-cli with `grok models`, which does not exercise the sandbox, so it reads Connected either way. To get the OS sandbox back, turn that Docker Desktop setting off (the `docker` CLI keeps working through `~/.docker/run/docker.sock`), or wait for a grok release that resolves the symlink. The seat also runs with `GROK_{CLAUDE,CURSOR}_{SKILLS,RULES,AGENTS,MCPS,HOOKS,SESSIONS}_ENABLED=0`: grok otherwise imports your Claude Code and Cursor hooks, rules, skills, agents, MCP servers and sessions, so your SessionStart and Stop hooks would run inside every council seat and your CLAUDE.md would shape its answer. grok's own `~/.grok` configuration still applies.
+**Grok CLI guards, and Docker Desktop.** `grok-cli.sh` runs grok with two guards: `--deny '*' --no-subagents`, which refuses every tool call at grok's permission layer (without it grok's file and shell tools run on your machine; `--tools ''` and `--permission-mode plan` do not stop them), and `--sandbox read-only`, grok's own OS profile on top. grok 1.0.46 refuses to start any sandbox profile when `/var/run/docker.sock` is a symlink, which Docker Desktop on macOS creates when "Allow the default Docker socket to be used" is on. When grok refuses to start because it cannot apply the sandbox (`could not apply the 'read-only' sandbox profile … Refusing to start`, as it does on that symlink), the provider runs once more on the deny rules alone, so the seat keeps answering; any other failure falls back to the `grok` API as usual. `/skogai-council:status` probes grok-cli with `grok models`, which does not exercise the sandbox, so it reads Connected either way. To get the OS sandbox back, turn that Docker Desktop setting off (the `docker` CLI keeps working through `~/.docker/run/docker.sock`), or wait for a grok release that resolves the symlink. The seat also runs with `GROK_{CLAUDE,CURSOR}_{SKILLS,RULES,AGENTS,MCPS,HOOKS,SESSIONS}_ENABLED=0`: grok otherwise imports your Claude Code and Cursor hooks, rules, skills, agents, MCP servers and sessions, so your SessionStart and Stop hooks would run inside every council seat and your CLAUDE.md would shape its answer. grok's own `~/.grok` configuration still applies.
 
 Override CLI model selection. Left unset, the council reads what each CLI has
 selected — `~/.codex/config.toml` (or `$CODEX_HOME`), `~/.grok/config.toml`,
@@ -421,10 +421,10 @@ Responses are automatically cached to speed up repeated queries and save API cos
 
 ```bash
 # Uses cache if available (default)
-/claude-council:ask "What's the best testing framework?"
+/skogai-council:ask "What's the best testing framework?"
 
 # Force fresh queries, skip cache
-/claude-council:ask --no-cache "What's the best testing framework?"
+/skogai-council:ask --no-cache "What's the best testing framework?"
 ```
 
 Cache configuration:

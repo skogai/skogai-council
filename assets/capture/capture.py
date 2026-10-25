@@ -176,7 +176,7 @@ class Capture:
         if runtime.exists():
             shutil.rmtree(runtime)
         if self.name != "tmux-pane":
-            for path in self.stores.glob("claude-council_inline-*.json"):
+            for path in self.stores.glob("skogai-council_inline-*.json"):
                 self.before_stores[path] = json.loads(path.read_text())
             data = json.loads(self.trust.read_text())
             self.had_project = str(self.project) in data.get("projects", {})
@@ -193,7 +193,7 @@ class Capture:
             if self.codex_home.exists():
                 shutil.rmtree(self.codex_home)
             if self.seeded:
-                for path in self.stores.glob("claude-council_inline-*.json"):
+                for path in self.stores.glob("skogai-council_inline-*.json"):
                     data = json.loads(path.read_text())
                     before = self.before_stores.get(path, {})
                     for key in KEYS:
@@ -256,7 +256,7 @@ class Capture:
                        f"--providers={self.roster}", "--verbosity=brief", "--no-cache", "--no-auto-context",
                        "--", QUESTION]
         else:
-            for path in self.stores.glob("claude-council_inline-*.json"):
+            for path in self.stores.glob("skogai-council_inline-*.json"):
                 data = json.loads(path.read_text())
                 for key in ("heads-up", "heads-up-counts", "heads-up-intro-shown"):
                     data.pop(key, None)
@@ -361,9 +361,9 @@ class Capture:
 
     def council(self):
         self.wait("❯")
-        self.type(f'/claude-council:ask --providers={self.roster} --verbosity=brief --no-auto-context --no-cache '
+        self.type(f'/skogai-council:ask --providers={self.roster} --verbosity=brief --no-auto-context --no-cache '
                   f'"{QUESTION}"')
-        self.save("The council command was sent", "/claude-council:ask")
+        self.save("The council command was sent", "/skogai-council:ask")
         self.wait("COUNCIL")
         self.key("C-x", "Tab")
         self.key("o")

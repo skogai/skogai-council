@@ -15,7 +15,7 @@ jobs_state_dir() {
     if [[ -z "${_COUNCIL_JOBS_STATE_DIR:-}" ]]; then
         local dir="${COUNCIL_JOBS_DIR:-}"
         if [[ -z "$dir" ]]; then
-            local root="${CLAUDE_PLUGIN_DATA:-${TMPDIR:-/tmp}/claude-council}"
+            local root="${CLAUDE_PLUGIN_DATA:-${TMPDIR:-/tmp}/skogai-council}"
             local hash
             hash=$(pwd | sha256_hex | cut -c1-16)
             dir="${root}/jobs/${hash}"

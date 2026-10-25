@@ -53,7 +53,7 @@ const HEADS_UP_LAUNCH_MS = 10_000
 // The heads-up side-check's session state is the host's (its contract is
 // types/index.d.ts), so a hot reload keeps a check in flight and a note on
 // screen; the band reads it while drawing.
-const HEADS_UP = { plugin: 'claude-council', key: 'headsUp' } as const
+const HEADS_UP = { plugin: 'skogai-council', key: 'headsUp' } as const
 const headsUp = atom(HEADS_UP, FRESH_SESSION)
 
 type PaneState = {
@@ -790,7 +790,7 @@ export const register: Register = (on, options) => {
 
   // The generated types list the tools connected when they were written, so a
   // tool registered at run time is matched by pattern.
-  on('tool.call', { tool: /^mcp__claude-council__ask$/ }, async ($, e) => {
+  on('tool.call', { tool: /^mcp__skogai-council__ask$/ }, async ($, e) => {
     // `e` is flat: the tool's input fields sit beside `tool` and `tool_use_id`.
     // Its declared type is the union of the listed tools, none of them this one.
     const input = e as unknown as Record<string, unknown>
@@ -823,7 +823,7 @@ export const register: Register = (on, options) => {
       const outcome = await setupHeadsUp($, state, settings)
       if ('text' in outcome) return outcome
       if (outcome.turnRowOn) {
-        const written = await $.config.set({ key: 'claude-council.heads_up', value: true })
+        const written = await $.config.set({ key: 'skogai-council.heads_up', value: true })
         if (written.deny) return { text: `The file is written, but the /config row was refused: ${written.deny}` }
         return { text: await headsUpReply($, state, true) }
       }

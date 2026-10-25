@@ -23,7 +23,7 @@ docs/superpowers/
 .claude-crawl/
 
 # Skill-creator iteration output
-claude-council-workspace/
+skogai-council-workspace/
 
 # OS files
 .DS_Store

@@ -409,7 +409,7 @@ test('paneSections keeps the whole pane under the engine\'s text limit by clippi
   expect(bodies).toHaveLength(10)
   for (const body of bodies) {
     expect(body.text.startsWith('seat')).toBe(true)
-    expect(body.text).toMatch(/\n\n_\u2026 \d+ more characters; the whole answer is in the result \(\/claude-council:result\)_$/)
+    expect(body.text).toMatch(/\n\n_\u2026 \d+ more characters; the whole answer is in the result \(\/skogai-council:result\)_$/)
   }
   const synthesis = sections.find(section => section.kind === 'synthesis') as { kind: 'synthesis'; text: string }
   expect(synthesis.text).toBe('S'.repeat(3000))

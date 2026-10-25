@@ -262,7 +262,7 @@ export function seatFolds(sections: Section[]): string[] {
 // text and draws its own. The budget sits under that with room for what the
 // pane draws around the sections (the retry row, the action labels, the footer's keys).
 const PANE_TEXT_BUDGET = 80000
-const CLIPPED = (more: number) => `\n\n_\u2026 ${more} more characters; the whole answer is in the result (/claude-council:result)_`
+const CLIPPED = (more: number) => `\n\n_\u2026 ${more} more characters; the whole answer is in the result (/skogai-council:result)_`
 
 // An error or a fallback reason is drawn as its opening only: a provider can
 // hand back a whole HTML error page. The section carries what is drawn, so

@@ -153,7 +153,7 @@ current Unix timestamp. Then tell the user:
 > ---
 > Local council saved to `.claude/council-cache/local-council-{TIMESTAMP}.md`
 > For cross-vendor perspectives, configure a provider key or install a CLI
-> (`/claude-council:status` shows what's available).
+> (`/skogai-council:status` shows what's available).
 
 ## Error Handling
 

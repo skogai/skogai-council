@@ -7,7 +7,7 @@
                                 |
                                 v
                     +------------------------+
-                    |   /claude-council:ask  |
+                    |   /skogai-council:ask  |
                     |     (commands/ask.md)  |
                     +------------------------+
                                 |
@@ -462,7 +462,7 @@ the one seat (codex: codex exec --output-schema, gated on
 turn.completed; others: providers/<seat>.sh, first-line NONE or
 NOTE:, TAG:, TOPIC:, TITLE: and POINT: lines) -> result.json
 {kind: note|none|skipped|failed, ...} (temp name, mv) -> .done.
-The pane polls .done, settles $.state (claude-council.headsUp),
+The pane polls .done, settles $.state (skogai-council.headsUp),
 draws the band; a skipped check is logged once per reason, draws
 nothing and counts no outcome; the checks shown by /heads-up status
 are the outcomes added up, never stored. Seen/known topics
@@ -600,7 +600,7 @@ usable on a Claude subscription alone.
 ## File Structure
 
 ```
-claude-council/
+skogai-council/
 ├── .claude-plugin/
 │   └── plugin.json              # Plugin manifest
 ├── .github/

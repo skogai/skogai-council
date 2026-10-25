@@ -4,4 +4,4 @@ target: last_message
 match: contains
 weight: 2
 ---
-/claude-council:(ask|advise)
+/skogai-council:(ask|advise)

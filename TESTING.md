@@ -1,6 +1,6 @@
 # Testing Guide
 
-Automated and manual testing procedures for claude-council features.
+Automated and manual testing procedures for skogai-council features.
 
 ## Automated Tests (bats)
 
@@ -233,7 +233,7 @@ pipx run plugin-scanner lint "$dir" --format text
 `evals/` holds a nine-case suite for when the council comes up. Seven cases
 cover the unprompted suggestion that `commands/ask.md` describes: five prompts
 where a competing-options choice, a stuck debugging thread, or a build-vs-buy
-call should earn a named `/claude-council:ask` suggestion alongside a real
+call should earn a named `/skogai-council:ask` suggestion alongside a real
 answer, and two where it must not. The other two cover a provider named in the
 request: `08-named-provider` ("check with grok") must start the council, and
 `09-neg-provider-mention`, which only asks about a provider's API, must not.
@@ -296,7 +296,7 @@ Manual testing procedures for features that require API calls or Claude Code int
    ```bash
    bash scripts/check-status.sh
    # Or via slash command:
-   /claude-council:status
+   /skogai-council:status
    ```
    Expected: At least one provider shows "Connected"
 
@@ -356,7 +356,7 @@ echo '{"metadata":{"quiet_mode":true},"round1":{"gemini":{"status":"success","re
 
 **Test**: Simple query to all providers
 ```bash
-/claude-council:ask "What are the pros and cons of REST vs GraphQL?"
+/skogai-council:ask "What are the pros and cons of REST vs GraphQL?"
 ```
 
 **Expected**:
@@ -371,7 +371,7 @@ echo '{"metadata":{"quiet_mode":true},"round1":{"gemini":{"status":"success","re
 
 **Test**: Query specific providers only
 ```bash
-/claude-council:ask --providers=gemini,openai "Explain dependency injection"
+/skogai-council:ask --providers=gemini,openai "Explain dependency injection"
 ```
 
 **Expected**:
@@ -385,7 +385,7 @@ echo '{"metadata":{"quiet_mode":true},"round1":{"gemini":{"status":"success","re
 
 **Test A**: CLI providers explicitly
 ```bash
-/claude-council:ask --providers=codex,antigravity "What is the most common cause of a SIGSEGV in C?"
+/skogai-council:ask --providers=codex,antigravity "What is the most common cause of a SIGSEGV in C?"
 ```
 
 **Expected**:
@@ -396,7 +396,7 @@ echo '{"metadata":{"quiet_mode":true},"round1":{"gemini":{"status":"success","re
 **Test B**: Default flow with CLI shadowing
 ```bash
 # With BOTH GEMINI_API_KEY/OPENAI_API_KEY set AND codex/agy binaries installed:
-/claude-council:ask "Should I use UUID or BIGINT for primary keys?"
+/skogai-council:ask "Should I use UUID or BIGINT for primary keys?"
 ```
 
 **Expected**:
@@ -409,7 +409,7 @@ echo '{"metadata":{"quiet_mode":true},"round1":{"gemini":{"status":"success","re
 
 **Test C**: Grok CLI explicitly
 ```bash
-/claude-council:ask --providers=grok-cli "What is the most common cause of a SIGSEGV in C?"
+/skogai-council:ask --providers=grok-cli "What is the most common cause of a SIGSEGV in C?"
 ```
 
 **Expected**:
@@ -423,7 +423,7 @@ echo '{"metadata":{"quiet_mode":true},"round1":{"gemini":{"status":"success","re
 
 **Test**: Include a specific file
 ```bash
-/claude-council:ask --file=scripts/query-council.sh "Review this script for improvements"
+/skogai-council:ask --file=scripts/query-council.sh "Review this script for improvements"
 ```
 
 **Expected**:
@@ -437,7 +437,7 @@ echo '{"metadata":{"quiet_mode":true},"round1":{"gemini":{"status":"success","re
 
 **Test**: Save response to markdown
 ```bash
-/claude-council:ask --output=test-output.md "What's the best way to handle errors in async code?"
+/skogai-council:ask --output=test-output.md "What's the best way to handle errors in async code?"
 ```
 
 **Expected**:
@@ -458,7 +458,7 @@ rm test-output.md
 
 **Test**: Show only synthesis
 ```bash
-/claude-council:ask --quiet "Should I use TypeScript or JavaScript?"
+/skogai-council:ask --quiet "Should I use TypeScript or JavaScript?"
 ```
 
 **Expected**:
@@ -472,7 +472,7 @@ rm test-output.md
 
 **Test A**: First query (cache miss)
 ```bash
-/claude-council:ask "What is the singleton pattern?"
+/skogai-council:ask "What is the singleton pattern?"
 ```
 
 **Expected**:
@@ -481,7 +481,7 @@ rm test-output.md
 
 **Test B**: Repeat same query (cache hit)
 ```bash
-/claude-council:ask "What is the singleton pattern?"
+/skogai-council:ask "What is the singleton pattern?"
 ```
 
 **Expected**:
@@ -491,7 +491,7 @@ rm test-output.md
 
 **Test C**: Force fresh query
 ```bash
-/claude-council:ask --no-cache "What is the singleton pattern?"
+/skogai-council:ask --no-cache "What is the singleton pattern?"
 ```
 
 **Expected**:
@@ -514,7 +514,7 @@ rm -rf .claude/council-cache/
 
 **Test A**: Question with code keywords
 ```bash
-/claude-council:ask "How can I improve the caching implementation?"
+/skogai-council:ask "How can I improve the caching implementation?"
 ```
 
 **Expected**:
@@ -524,7 +524,7 @@ rm -rf .claude/council-cache/
 
 **Test B**: Disable auto-context
 ```bash
-/claude-council:ask --no-auto-context "What are caching best practices?"
+/skogai-council:ask --no-auto-context "What are caching best practices?"
 ```
 
 **Expected**:
@@ -533,7 +533,7 @@ rm -rf .claude/council-cache/
 
 **Test C**: Generic question (no code keywords)
 ```bash
-/claude-council:ask "What's the weather like today?"
+/skogai-council:ask "What's the weather like today?"
 ```
 
 **Expected**:
@@ -545,7 +545,7 @@ rm -rf .claude/council-cache/
 
 **Test A**: Specific roles
 ```bash
-/claude-council:ask --roles=security,performance,maintainability "Review this authentication approach: JWT stored in localStorage"
+/skogai-council:ask --roles=security,performance,maintainability "Review this authentication approach: JWT stored in localStorage"
 ```
 
 **Expected**:
@@ -558,7 +558,7 @@ rm -rf .claude/council-cache/
 
 **Test B**: Role preset
 ```bash
-/claude-council:ask --roles=balanced "How should I structure API endpoints?"
+/skogai-council:ask --roles=balanced "How should I structure API endpoints?"
 ```
 
 **Expected**:
@@ -567,7 +567,7 @@ rm -rf .claude/council-cache/
 
 **Test C**: Fewer roles than providers
 ```bash
-/claude-council:ask --roles=security "Review error handling in this approach"
+/skogai-council:ask --roles=security "Review error handling in this approach"
 ```
 
 **Expected**:
@@ -581,7 +581,7 @@ rm -rf .claude/council-cache/
 
 **Test**: Enable multi-round discussion
 ```bash
-/claude-council:ask --debate "Should we use microservices or monolith for a new project?"
+/skogai-council:ask --debate "Should we use microservices or monolith for a new project?"
 ```
 
 **Expected**:
@@ -597,7 +597,7 @@ rm -rf .claude/council-cache/
 
 **Test B**: Debate with roles
 ```bash
-/claude-council:ask --debate --roles=security,scalability,simplicity "Review this database schema design"
+/skogai-council:ask --debate --roles=security,scalability,simplicity "Review this database schema design"
 ```
 
 **Expected**:
@@ -611,7 +611,7 @@ rm -rf .claude/council-cache/
 
 **Test**: Multiple flags together
 ```bash
-/claude-council:ask --providers=gemini,openai --roles=security,performance --quiet --output=combined-test.md "Review this code pattern"
+/skogai-council:ask --providers=gemini,openai --roles=security,performance --quiet --output=combined-test.md "Review this code pattern"
 ```
 
 **Expected**:
@@ -631,7 +631,7 @@ rm combined-test.md
 
 **Test A**: Attach an image to vision-capable providers
 ```bash
-/claude-council:ask --image=screenshot.png --providers=gemini,openai,grok,perplexity "What does this screen show?"
+/skogai-council:ask --image=screenshot.png --providers=gemini,openai,grok,perplexity "What does this screen show?"
 ```
 
 **Expected**:
@@ -640,7 +640,7 @@ rm combined-test.md
 
 **Test B**: Default set routes CLI providers to their vision siblings
 ```bash
-/claude-council:ask --image=screenshot.png "Describe this"
+/skogai-council:ask --image=screenshot.png "Describe this"
 ```
 
 **Expected**:
@@ -722,7 +722,7 @@ bash scripts/query-council.sh "$(cat README.md) - Summarize this" 2>/dev/null | 
 ### Timeout Handling
 ```bash
 export COUNCIL_TIMEOUT=1
-/claude-council:ask "Complex question requiring long response"
+/skogai-council:ask "Complex question requiring long response"
 ```
 **Expected**: Timeout error, no retry
 
@@ -778,7 +778,7 @@ Release checklist:
 2. Test locally
 3. Bump version in `.claude-plugin/plugin.json`
 4. Commit and push
-5. Users update via `/plugin update claude-council`
+5. Users update via `/plugin update skogai-council`
 
 ## Adding New Providers
 
