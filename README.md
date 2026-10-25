@@ -120,3 +120,4 @@ reproduce them.
 | A different model answered | A header such as `grok-4.7 (grok-latest unavailable)` records a [model fallback](docs/REFERENCE.md#model-fallback). Setting that provider's `_MODEL` variable disables fallback. |
 | No pane | Use tmux or set `CLAUDE_CODE_ENABLE_FUNCTION_HOOKS=1` for the pane inside Claude Code. |
 | Updating | Run `/plugin update skogai-council`, then restart Claude Code. |
+/plugin install skogai-council --marketplace skogai2/marketplace
