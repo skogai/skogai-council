@@ -4,12 +4,12 @@ import { atom, read, update } from 'claude-code'
 import type { Elements, EngineInterface, Register, RenderChildren, Timer } from 'claude-code'
 import {
   applyAnswer, avoidList, bandView, checkLine, CONFIG_FILE, decide, onCadence, FRESH_SESSION, mergeMemory, parseConfig, parseMemory, parseRunResult, pressed, settle, STORE_KEY, tellClaudeDraft, typedPast,
-  bumped, COMMAND as HEADS_UP_COMMAND, COUNTS_KEY, headsUpCommand, INTRO_KEY as HEADS_UP_INTRO_KEY, introTail, parseCounts, headsUpStatus, statusText, withEnabled, type Counts, type HeadsUpStatus,
+  addedTokens, bumped, COMMAND as HEADS_UP_COMMAND, COUNTS_KEY, TOKENS_KEY, parseTokens, headsUpCommand, INTRO_KEY as HEADS_UP_INTRO_KEY, introTail, parseCounts, headsUpStatus, statusText, withEnabled, type Counts, type HeadsUpStatus,
   seatsFromDiscovery, seatOptions, seatFromAnswer, everyFromAnswer, SCOPE, SCOPE_QUESTION, SEAT_QUESTION, EVERY_QUESTION, EVERY_LABELS, receiptLine, modelFile, type HeadsUpConfig, modelOptions, modelFromAnswer, effortOptions, effortFromAnswer, MODEL_QUESTION, EFFORT_QUESTION, type SeatPick,
   tagMark, toastLine, type Answer, type BandView, type Memory, type RunResult,
-  EMPTY_MEMORY,
+  EMPTY_MEMORY, acknowledgePause, pausedLine, storedSession,
 } from './heads-up'
-import type { Note, Session } from '../types'
+import type { Note, Paused, Session } from '../types'
 import { decideHost, HOST_LABELS, HOST_QUESTION, HOST_STORE_KEY, hostFrom, hostRowLabel, isCouncilRun, paneCommand, type HostSetting, type PaneHost } from './host'
 import { abandonedNotice, FINISH_NOTICE_MS, finishNotice, jobOutcome, noticeIsLive, reopenReply, runPid, wakePrompt, type FinishNotice, progressBand } from './notices'
 import { paneOptions, type PaneOptions } from './options'
@@ -49,6 +49,8 @@ const BAND_INDENT = 2
 const ACTION_COLUMNS = 2 + '[ cancel ]'.length
 // The heads-up runner forks and returns its pid; anything slower is a fault.
 const HEADS_UP_LAUNCH_MS = 10_000
+// A seat question reads the provider scripts and a config file or two.
+const SEAT_INFO_MS = 15_000
 
 // The heads-up side-check's session state is the host's (its contract is
 // types/index.d.ts), so a hot reload keeps a check in flight and a note on
@@ -145,8 +147,8 @@ async function setupHeadsUp($: EngineInterface, state: PaneState, settings: Pane
     return { turnRowOn: false }
   }
   if (scope !== SCOPE.project && scope !== SCOPE.all) return { text: `Setup closed: ${JSON.stringify(scope)} is not one of the choices; nothing changed.` }
-  // The council's own discovery, so the seats offered are the seats a council run would seat.
-  const discovered = await $.process.run(['bash', '-c', 'export PROVIDERS_DIR="$1/scripts/providers"; source "$1/scripts/lib/keys.sh"; resolve_grok_key; source "$1/scripts/lib/providers.sh"; discover_providers', '_', $.plugin.root])
+  // The council's own discovery, so the seats offered are the ones this machine can run.
+  const discovered = await seatInfo($, 'discover')
   if (discovered.exitCode !== 0) return { text: `Setup closed: seat discovery exited ${discovered.exitCode}: ${discovered.stderr.trim()}; nothing changed.` }
   const seatAnswer = await ask(SEAT_QUESTION, seatOptions(seatsFromDiscovery(discovered.stdout)))
   if (seatAnswer === undefined) return closed
@@ -160,7 +162,9 @@ async function setupHeadsUp($: EngineInterface, state: PaneState, settings: Pane
   const every = everyFromAnswer(everyAnswer)
   if ('why' in every) return { text: `Setup closed: ${every.why}; nothing changed.` }
   // The seat's model; codex also takes an effort, from its own catalog.
-  const current = (await $.process.run(['bash', '-c', 'source "$1/scripts/lib/providers.sh" && get_model "$2"', '_', $.plugin.root, seat]).catch(() => ({ stdout: '' }))).stdout.trim()
+  const lookup = await seatInfo($, 'model', seat)
+  if (lookup.exitCode !== 0) return { text: `Setup closed: reading ${seat}'s model exited ${lookup.exitCode}: ${lookup.stderr.trim()}; nothing changed.` }
+  const current = lookup.stdout.trim()
   const catalog = seat === 'codex' ? await readCatalog($) : undefined
   const slugs = catalog !== undefined && 'models' in catalog ? catalog.models.filter(m => m.listed).map(m => m.slug) : undefined
   const modelAnswer = await ask(MODEL_QUESTION(seat), modelOptions(current, slugs))
@@ -185,7 +189,7 @@ async function setupHeadsUp($: EngineInterface, state: PaneState, settings: Pane
 // What /heads-up status prints, from the project file as it stands.
 async function readHeadsUpStatus($: EngineInterface, rowOn: boolean): Promise<HeadsUpStatus> {
   const { text } = await headsUpFile($)
-  return headsUpStatus(parseConfig(text, rowOn), rowOn, text, parseCounts(await $.store.get(COUNTS_KEY)))
+  return headsUpStatus(parseConfig(text, rowOn), rowOn, text, parseCounts(await $.store.get(COUNTS_KEY)), parseTokens(await $.store.get(TOKENS_KEY)), storedSession(await read($, headsUp)).paused)
 }
 
 // The status as the command's reply; mid-turn the reply waits for the turn to
@@ -408,11 +412,24 @@ async function count($: EngineInterface, ...keys: (keyof Counts)[]): Promise<voi
   await $.store.set(COUNTS_KEY, bumped(parseCounts(await $.store.get(COUNTS_KEY)), ...keys))
 }
 
+// Read, add the check's tokens, write: never a lock (see Tokens).
+async function tallyTokens($: EngineInterface, result: RunResult): Promise<void> {
+  await $.store.set(TOKENS_KEY, addedTokens(parseTokens(await $.store.get(TOKENS_KEY)), result))
+}
+
+// The runner's seat questions, answered by its shipped script with fixed
+// subcommands, so the mod never hands bash an inline script.
+function seatInfo($: EngineInterface, ...args: ['discover'] | ['model' | 'allowlisted', string]) {
+  return $.process.run(['bash', `${$.plugin.root}/scripts/seat-info.sh`, ...args], { timeoutMs: SEAT_INFO_MS })
+}
+
 // The runner's own allowlist (a providers/<seat>.sh exists) decides what a
 // seat is, so no second list lives here; the refusal names the real ones.
+// Exit 1 is the refusal; any other failure is the check's own and says so.
 async function notASeat($: EngineInterface, seat: string): Promise<string | undefined> {
-  const ok = await $.process.run(['bash', '-c', 'source "$1/scripts/lib/providers.sh" && provider_allowlisted "$2"', '_', $.plugin.root, seat])
+  const ok = await seatInfo($, 'allowlisted', seat)
   if (ok.exitCode === 0) return undefined
+  if (ok.exitCode !== 1) return `checking ${JSON.stringify(seat)} exited ${ok.exitCode}: ${ok.stderr.trim()}`
   const names = (await $.fs.list(`${$.plugin.root}/scripts/providers`)).map(entry => entry.name).filter(name => name.endsWith('.sh')).map(name => name.slice(0, -3)).sort()
   return `${JSON.stringify(seat)} is not a council seat; one of ${names.join(', ')}`
 }
@@ -456,7 +473,8 @@ async function stepHeadsUp($: EngineInterface, state: PaneState, settings: PaneO
   const memory = await loadMemory($)
   const now = await $.clock.now()
   const held = await $.state.get(HEADS_UP)
-  const decision = decide(config, held.value ?? FRESH_SESSION, memory, step, now)
+  const current = storedSession(held.value ?? FRESH_SESSION)
+  const decision = decide(config, current, memory, step, now)
   if (decision.kind === 'skip' && decision.why === 'backoff') await saveMemory($, decision.memory)
   if (decision.kind !== 'launch') return
   const runDir = `${await watchRoot($)}/heads-up/${decision.checkId}`
@@ -465,7 +483,7 @@ async function stepHeadsUp($: EngineInterface, state: PaneState, settings: PaneO
   // that vanished, and idle the session under the launch.
   const avoidFile = `${runDir}/avoid.txt`
   await $.fs.write(avoidFile, avoidList(memory))
-  const session: Session = { ...(held.value ?? FRESH_SESSION), phase: { kind: 'checking', turnId: step.turnId, checkId: decision.checkId, runDir, startedMs: now } }
+  const session: Session = { ...current, phase: { kind: 'checking', turnId: step.turnId, checkId: decision.checkId, runDir, startedMs: now, resumes: current.resumes } }
   // A press or a poll wrote in between: this step's reading is stale, and
   // the next step decides again on the new session.
   const written = await $.state.set(HEADS_UP, session, { ifVersion: held.version })
@@ -482,6 +500,7 @@ async function stepHeadsUp($: EngineInterface, state: PaneState, settings: PaneO
     state.headsUpFailure = { text: `heads-up: failed · ${String(error)}`, untilMs: now + FINISH_NOTICE_MS, isFailure: true }
     $.ui.invalidate('ui.render')
     await count($, 'failed')
+    await tallyTokens($, { kind: 'failed', payloadBytes: 0, seats: [] })
     throw error
   }
 }
@@ -527,7 +546,7 @@ async function pollHeadsUp($: EngineInterface, state: PaneState, phase: Extract<
   else return
   // settle reads memory only to spot a repeated note.
   const memory = result.kind === 'note' ? await loadMemory($) : EMPTY_MEMORY
-  const settled = await update($, headsUp, s => (s.phase.kind === 'checking' && s.phase.checkId === checkId ? settle(s, memory, result) : s))
+  const settled = await update($, headsUp, s => (s.phase.kind === 'checking' && s.phase.checkId === checkId ? settle(storedSession(s), memory, result) : s))
   if (result.kind === 'failed') {
     $.ui.log(checkLine(result))
     state.headsUpFailure = { text: checkLine(result), untilMs: now + FINISH_NOTICE_MS, isFailure: true }
@@ -537,10 +556,19 @@ async function pollHeadsUp($: EngineInterface, state: PaneState, phase: Extract<
     state.headsUpReceipt = receiptLine(result)
     $.ui.invalidate('ui.render')
   }
+  // Told once, here: the pause stops every later check, and its red row reads
+  // the session. A check launched before /heads-up on paused nothing, so it says nothing.
+  if (result.kind === 'quota' && settled.paused !== null) {
+    $.ui.log(checkLine(result))
+    $.ui.invalidate('ui.render')
+  }
   // Nobody to warn is not a fault: one log line per reason, no band, no outcome counted.
   logOnChange($, state, 'headsUpSkipped', result.kind === 'skipped' ? checkLine(result) : '')
   const drawn = settled.phase.kind === 'showing' && settled.phase.note.id === checkId
-  if (result.kind !== 'skipped') await count($, result.kind !== 'note' ? result.kind : drawn ? 'notes' : 'repeats')
+  if (result.kind !== 'skipped') {
+    await count($, result.kind !== 'note' ? result.kind : drawn ? 'notes' : 'repeats')
+    await tallyTokens($, result)
+  }
   await $.process.run(['rm', '-rf', runDir])
 }
 
@@ -576,6 +604,13 @@ async function personSubmitted($: EngineInterface): Promise<void> {
     return typedPast(s)
   })
   if (seen.topic !== undefined) await recordAnswer($, seen.topic, 'typed-past')
+}
+
+// The pause row's Dismiss: the row goes, the session stays paused.
+function dismissPause($: EngineInterface, state: PaneState): void {
+  void logFailure($, state, async () => {
+    await update($, headsUp, s => acknowledgePause(storedSession(s)))
+  })
 }
 
 // Turn off takes two presses, as the builtin's Disable does: the first arms it
@@ -646,6 +681,22 @@ function headsUpRow(
             </ui.Box>
           </ui.Box>
         </ui.Box>
+      </ui.Box>
+    </ui.Box>
+  )
+}
+
+// The pause, red as a failed check is, on one row: a narrow pane cuts the
+// seat's words, never the choice, drawn plain as the note's are.
+function pausedRow(ui: Pick<Elements['terminal'], 'Box' | 'Button' | 'Text'>, paused: Paused, dismiss: () => void) {
+  return (
+    <ui.Box key="heads-up-paused" flexDirection="row" marginTop={1} paddingLeft={BAND_INDENT}>
+      <ui.Box flexShrink={1}>
+        <ui.Text bold color={COLOR.danger} wrap="truncate-end">{`\u2717 ${pausedLine(paused)}`}</ui.Text>
+      </ui.Box>
+      <ui.Box flexShrink={0}>
+        <ui.Text>{'   '}</ui.Text>
+        <ui.Button key="heads-up-paused:dismiss" hotkey="0" label="Dismiss" plain role="dismiss" onPress={dismiss} />
       </ui.Box>
     </ui.Box>
   )
@@ -832,6 +883,13 @@ export const register: Register = (on, options) => {
       if (unknown !== undefined) return { text: `${unknown}; nothing changed.` }
       const file = await headsUpFile($)
       await $.fs.write(file.path, withEnabled(file.text, command.action === 'on', command.action === 'on' ? command.seat : undefined))
+      // On is the one way to resume a session the seat's credits paused; off leaves the pause.
+      if (command.action === 'on') {
+        await update($, headsUp, s => {
+          const current = storedSession(s)
+          return { ...current, paused: null, resumes: current.resumes + 1 }
+        })
+      }
       state.headsUpTip = ''
     }
     return { text: await headsUpReply($, state, settings.headsUp) }
@@ -912,7 +970,9 @@ export const register: Register = (on, options) => {
     }
     // A note is one row and time-sensitive: the progress band waits for its
     // answer. Reading the session here subscribes the band to its changes.
-    const band = bandView((await read($, headsUp)).phase)
+    const session = storedSession(await read($, headsUp))
+    if (session.paused !== null && !session.paused.acknowledged) return pausedRow($.ui.resolve(e), session.paused, () => dismissPause($, state))
+    const band = bandView(session.phase)
     if (band) return headsUpRow($.ui.resolve(e), band, headsUpPresses($, state, band.id), state.headsUpTurnOffArmed === band.id)
     const view = state.view
     const progress = view ? progressBand(view, state.runStartedMs, state.nowMs, state.frame) : undefined

@@ -4,6 +4,41 @@ All notable changes to claude-council are documented here. The format follows
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres
 to a `YYYY.M.BUILD` versioning scheme where `BUILD` resets each month.
 
+## Unreleased
+
+### Added
+- `/heads-up status` has a `tokens` row: what the heads-up checks used, summed on this machine, such as `42 of 45 checks reported since this version · 1.48M in, 820.0k cached on 40 of 42 · 9.1k out, 6.2k reasoning on 30 of 42 · 35.6k per check`. Counting starts with this version, so the row covers fewer checks than the `checks` row. codex and every API seat report tokens, and so do claude-cli, cursor-cli, copilot-cli and opencode. grok-cli, kimi-cli and antigravity print no counts, so the row lists their checks as unreported. Each seat's tokens come from the response it already gets, and no extra request goes out.
+
+### Changed
+- The heads-up side-check pauses for the rest of the session when codex reports its workspace is out of credits (or at its usage limit), instead of failing again at every cadence point. A red row above the prompt names the seat and codex's own words, with `0: Dismiss` to hide it; only `/heads-up on` or a new session resumes the check. `/heads-up status` shows a `paused` row while it lasts, and its counts add `out of credits` apart from `failed`.
+
+### Fixed
+- A heads-up check whose codex turn failed reports codex's own reason from its `turn.failed` event. It used to quote codex's stderr, which can hold unrelated MCP server errors and hid the cause.
+
+## 2026.10.13
+
+### Fixed
+- `/heads-up setup` and `/heads-up on <seat>` report a failed seat check with its exit code and error, instead of calling a real seat "not a council seat" or offering models as if the seat had none. Each check has a 15-second limit.
+
+### Changed
+- The pane mod asks `scripts/seat-info.sh` which seats exist, which model a seat runs and whether a name is a seat, in place of three inline `bash -c` scripts. Same answers, one named program with fixed arguments. `tests/seat-info.bats` covers its exit codes and usage. (#73)
+- Dependabot bumps the HOL plugin scanner action. (#61)
+
+### Documentation
+- README lists what the pane mod runs, reads, writes and sends: every program it starts and why, the two scripts that carry your text to model providers, the one project file it writes, its two prompt calls, and the variable and setting it changes. The mod guide links to it. (#73)
+
+## 2026.10.12
+
+### Added
+- An `opencode` seat puts the OpenCode CLI on the council, on whichever provider you logged it in to with `opencode auth login`. Opt-in: name it in `--providers` or `COUNCIL_PROVIDERS`, since each question bills that provider. It uses the `model` from your `opencode.json`, and `OPENCODE_MODEL` overrides it. Each run gets a private server and an empty config dir, so your config, plugins, MCP servers and project `AGENTS.md` stay out, the seat has no tools, and it deletes its own session from your OpenCode history afterwards. Vendor API keys and every other `OPENCODE_*` variable stay behind; `COUNCIL_PASS_ENV` passes one through on purpose. (#71, #72)
+- `/claude-council:status` shows an OpenCode row. It reads Connected when a login is stored, otherwise `opencode auth login` as the fix.
+
+### Documentation
+- README names the three opt-in seats (`claude-cli`, `copilot-cli`, `opencode`) next to the discovered CLIs.
+
+### Changed
+- The seat and the status probe share one isolation helper, and the fake-CLI fixture shares its argv and env recorders.
+
 ## 2026.10.11
 
 ### Changed
