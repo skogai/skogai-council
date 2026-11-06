@@ -66,7 +66,7 @@ Data first. Three owners and nothing else:
 | `Memory` {seen, known, typedPastInARow, looksToSkip} | `applyAnswer` | `$.store['heads-up']` | crosses sessions like the builtin; lists capped at 50, counters global like the builtin |
 | `Session` {turnBase, offeredTurn, phase} | pane shell via `decide` and `settle` | `$.state` (`PluginState['skogai-council']['headsUp']`) | per session, survives hot reload; `phase` is a tagged union so "checking and showing at once" cannot be represented |
 | run files | `scripts/heads-up.sh` | `council-mod.<sid>/heads-up/<checkId>/` | detached worker output; `result.json` written to a temp name and moved, `.done` last |
-| `Session` {offeredTurn, phase, paused, resumes} | pane shell via `decide` and `settle` | `$.state` (`PluginState['claude-council']['headsUp']`) | per session, survives hot reload; `phase` is a tagged union so "checking and showing at once" cannot be represented |
+| `Session` {offeredTurn, phase, paused, resumes} | pane shell via `decide` and `settle` | `$.state` (`PluginState['skogai-council']['headsUp']`) | per session, survives hot reload; `phase` is a tagged union so "checking and showing at once" cannot be represented |
 | run files | `scripts/heads-up.sh` | `council-mod.<sid>/heads-up/<checkId>/` | detached worker output; `seat.usage.json` the seat's tokens when it reported them; `result.json` written to a temp name and moved, `.done` last |
 | `Tokens` {checks, input, cached, cachedChecks, output, reasoning, reasoningChecks, unreported} | `addedTokens` | `$.store['heads-up-tokens']` | adds amounts, so kept apart from the `heads-up-counts` bumps; read-add-write per check, a concurrent add can lose one check's tokens |
 

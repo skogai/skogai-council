@@ -290,7 +290,7 @@ Manual testing procedures for features that require API calls or Claude Code int
 
 2. **Plugin loaded** in Claude Code:
    ```bash
-   claude --plugin-dir /path/to/claude-council
+   claude --plugin-dir /path/to/skogai-council
    ```
 
 3. **Verify provider status**:

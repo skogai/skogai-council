@@ -7,7 +7,7 @@ choices.
 
 ![Codex, Antigravity, Gemini, and OpenAI answer the SQLite-or-Postgres question while fake Kimi fails](assets/council-run.svg)
 
-[![Tests](https://github.com/hex/claude-council/actions/workflows/tests.yml/badge.svg)](https://github.com/hex/claude-council/actions/workflows/tests.yml)
+[![Tests](https://github.com/skogai/skogai-council/actions/workflows/tests.yml/badge.svg)](https://github.com/skogai/skogai-council/actions/workflows/tests.yml)
 
 ## Install
 
@@ -133,14 +133,14 @@ That file is the heads-up switch. Claude Code itself does not read it.
 
 It touches the prompt in two places. With `wake_on_async_done` on, it
 submits `The background council job <id> has finished. Fetch it with
-/claude-council:result <id> and summarise it.` once a background job
+/skogai-council:result <id> and summarise it.` once a background job
 finishes. A note's `Tell Claude` puts a draft in the prompt box, and you decide
 whether to send it.
 
 It reads the text of each Bash command Claude runs, only to spot a call
 to `run-council.sh`. Just before that call it sets `COUNCIL_MOD_PANE_DIR`,
 so the run draws in this pane, and clears it when tmux owns the pane. It reads `TMPDIR` and `TMUX`. It turns on the
-`claude-council.heads_up` setting only when you pick "every project" in
+`skogai-council.heads_up` setting only when you pick "every project" in
 `/heads-up setup`.
 
 ![Real SQLite-or-Postgres answers arrive in tmux beside a fake Kimi failure and the retry offer](assets/tmux-pane.svg)

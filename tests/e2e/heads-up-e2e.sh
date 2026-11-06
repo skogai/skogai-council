@@ -33,7 +33,7 @@ for store in "$HOME"/.claude/plugins/store/skogai-council_inline-*.json; do
 # store; this run must leave all four as it found them. The intro flag is
 # dropped for the run so the once-per-install line shows.
 KEYS='["heads-up", "heads-up-counts", "heads-up-tokens", "heads-up-intro-shown"]'
-for store in "$HOME"/.claude/plugins/store/claude-council_inline-*.json; do
+for store in "$HOME"/.claude/plugins/store/skogai-council_inline-*.json; do
     [ -f "$store" ] || continue
     jq --argjson keys "$KEYS" 'with_entries(select(.key as $k | $keys | index($k)))' "$store" > "$OUT/before.$(basename "$store")"
     jq 'del(.["heads-up-intro-shown"], .["heads-up-counts"], .["heads-up-tokens"])' "$store" > "$OUT/cleared.json"
@@ -99,9 +99,9 @@ on_screen() { screen | grep -qF -- "$1"; }
 wait_for() { wait_until 90 "never saw '$1'" on_screen "$1"; }
 memory() { jq -c '.["heads-up"] // {}' "$HOME"/.claude/plugins/store/skogai-council_inline-*.json | head -1; }
 counts() { jq -c '.["heads-up-counts"] // {}' "$HOME"/.claude/plugins/store/skogai-council_inline-*.json | head -1; }
-memory() { jq -c '.["heads-up"] // {}' "$HOME"/.claude/plugins/store/claude-council_inline-*.json | head -1; }
-counts() { jq -c '.["heads-up-counts"] // {}' "$HOME"/.claude/plugins/store/claude-council_inline-*.json | head -1; }
-tokens() { jq -c '.["heads-up-tokens"] // {}' "$HOME"/.claude/plugins/store/claude-council_inline-*.json | head -1; }
+memory() { jq -c '.["heads-up"] // {}' "$HOME"/.claude/plugins/store/skogai-council_inline-*.json | head -1; }
+counts() { jq -c '.["heads-up-counts"] // {}' "$HOME"/.claude/plugins/store/skogai-council_inline-*.json | head -1; }
+tokens() { jq -c '.["heads-up-tokens"] // {}' "$HOME"/.claude/plugins/store/skogai-council_inline-*.json | head -1; }
 
 git -C "$PROJECT" init -q -b main
 printf '{"enabled": false, "seat": "codex", "every": 2}\n' > "$PROJECT/.claude/council-heads-up.json"
