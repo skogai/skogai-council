@@ -70,3 +70,75 @@ No background council jobs are running.
 
 - Bash: `bash /skogai/claude/plugins/cache/skogai-marketplace/skogai-council/2026.10.13/scripts/check-status.sh; echo "---JOBS---…`
 
+## 2026-11-07 14:00 · turn 2aa8944f
+
+**User**
+
+> /skogai-council:advise --providers=claude-cli
+
+**Assistant**
+
+I sent the 5,456-byte `last:3` window, then deleted the digest file. Since the streaming pane wasn't shown, here is the reply in full.
+
+### claude-cli (model: default)
+
+# Review of the session
+
+Overall the session went well. The assistant inspected the machine before answering, the status table is clear and actionable, and it asked before sending anything to an external model. The problems are in a few details that are wrong or overstated.
+
+## What it got wrong
+
+**1. The consent prompt says "no file contents" and "no tool output", which isn't accurate.**
+The digest quotes `.claude-plugin/marketplace.json` (the description string and `source.path`). It also includes results that came from tools: the provider script names, CLI version numbers and which env vars are unset. None of that is sensitive. But a consent prompt that tells the user what is being sent has to be accurate. A better wording: "chat text only, which includes summaries of local tool results and a quoted line from marketplace.json."
+
+**2. The `! <cmd> login` advice will probably fail.**
+`cursor-agent login`, `opencode auth login` and `grok login` are interactive. They usually open a browser OAuth flow or wait for a pasted code or a TTY prompt. Commands run with `!` in Claude Code don't get an interactive terminal, so these may hang or exit with an error. The safer advice is to run them in a separate terminal and then re-run `/skogai-council:status`.
+
+**3. "No API keys are set" was stated more firmly than the check supports.**
+The check only looked at the environment of the Claude Code subprocess. If the user exports keys in an interactive-only rc file, a direnv `.envrc`, or a `.env` file that the provider scripts load, those keys would be missed. It should have said "not visible to this session" and mentioned where the scripts actually read keys from.
+
+## What it missed
+
+**4. It didn't point out that `--providers=claude-cli` gives a one-seat council of the same model family.**
+This is the most significant miss. The user asked for advice from claude-cli alone, which means Claude reviewing Claude's own session. That gives very little independent perspective, and that perspective is the reason to use a council. Four other seats were working: Codex, Antigravity, Kimi CLI and Ollama. Ollama is fully local, so it has no privacy cost. The assistant should have said so in one line, for example: "Only claude-cli? It shares the model family with me; add `codex,antigravity` for an independent view?" The user could still have declined.
+
+**5. It looked at only part of the staged changes.**
+It flagged `marketplace.json`, but the staged changes also include `D .skogai/logs/skogai-core/log.jsonl` and an `M .gitignore`. Together these probably mean the user is moving the log out of tracking, which is fine if intended. Still, a tracked file is about to be deleted in the next commit. Since the assistant was already reviewing pending changes, it should have mentioned this.
+
+**6. It didn't check the plugin name in the marketplace entry.**
+Commit `30768ae` renamed the plugin to `skogai-council`, but the entry it described is named `council`. That could be a second inconsistency besides the copied description, and it's worth one check.
+
+**7. The Ollama check probably confirms only that the server is up.**
+A 41ms response suggests a ping to the daemon. A seat that has no model pulled, or no default model configured, will still fail when used. The table should say whether a model is actually available.
+
+## Minor points
+
+- "Shows on the plugin you just installed" is a guess. The `marketplace.json` change is staged, not committed, and nothing in the transcript shows it was installed.
+- The consent question was very long because the whole review question was packed into the prompt. A short summary plus a "show full digest" option would make it easier to read before deciding.
+- The "Smaller window" choice worked. This digest no longer contains the `/plugin=` typo section. But the prompt never said in advance how much "smaller" would cut, so the user couldn't know what they were agreeing to.
+
+## Suggested fixes
+
+In priority order:
+
+1. Make the consent prompt accurately describe what is in the digest.
+2. Warn when the council is a single seat, or when it uses the same model family as the assistant.
+3. Tell users to run interactive logins in a separate terminal instead of with `!`.
+4. Report keys as "not visible to this session" rather than "not set".
+
+---
+
+I'm leaving the review ungraded, as `/advise` requires. Two of its claims contradict the git status from the start of this session:
+- **Point 5:** that status listed only the untracked `.claude-plugin/marketplace.json`. It showed no staged deletion of a log file and no `.gitignore` change.
+- **First minor point:** `marketplace.json` is untracked, not staged. The session log also shows you ran `/plugin` and got "✓ Installed council" before any of this.
+
+**Actions**
+
+- Bash: `bash /skogai/claude/plugins/cache/skogai-marketplace/skogai-council/2026.10.13/scripts/session-transcript.sh c21aa54a-58…`
+- Bash: `DIGEST=$(mktemp "/tmp/claude-1000/-home-skogix--local-src-skogai-council/c21aa54a-5807-487c-ae58-570bea6f9eed/scratchpad…`
+- AskUserQuestion
+- Bash: `D=/tmp/claude-1000/-home-skogix--local-src-skogai-council/c21aa54a-5807-487c-ae58-570bea6f9eed/scratchpad; rm -f $D/coun…`
+- Bash: `D=/tmp/claude-1000/-home-skogix--local-src-skogai-council/c21aa54a-5807-487c-ae58-570bea6f9eed/scratchpad; T=/skogai/cla…`
+- AskUserQuestion
+- Bash: `DIGEST=/tmp/claude-1000/-home-skogix--local-src-skogai-council/c21aa54a-5807-487c-ae58-570bea6f9eed/scratchpad/council-d…`
+
