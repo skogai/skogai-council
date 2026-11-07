@@ -47,3 +47,4 @@ CLAUDE.local.md
 .cs/private/
 .cs/session.lock
 .cs/session.mutex.lock
+/.skogai/logs/skogai-core/log.jsonl

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "skogai-council-marketplace",
+  "version": "1.0.16",
+  "description": "skogai-council-marketplace",
+  "owner": {
+    "name": "skogix",
+    "url": "https://github.com/skogai"
+  },
+  "plugins": [
+    {
+      "name": "council",
+      "source": {
+        "source": "git-subdir",
+        "url": "https://github.com/skogai/skogai-council.git",
+        "path": "mods/council-pane"
+      },
+      "description": "Use Codex from Claude Code to review code or delegate tasks."
+    }
+]
+}
